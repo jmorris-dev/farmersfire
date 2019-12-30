@@ -3,14 +3,23 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from datetime import datetime
+import os
 
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__, instance_relative_config=True)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.db'
+
+
+class Config(object):
+    # ...
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'app.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 
 app.secret_key = 'dev'
 app.config.from_pyfile('config.py', silent=True)
-
+app.config.from_object(Config)
 
 db = SQLAlchemy(app)
 
